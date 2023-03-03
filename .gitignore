@@ -1,3 +1,4 @@
 raw_data/
 .env
 clean_data/
+*__pycache__/

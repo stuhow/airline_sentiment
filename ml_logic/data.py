@@ -3,21 +3,19 @@ import pandas as pd
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
-import string
 import unidecode
 import contractions
-
+from sklearn.utils import resample
 
 def get_airline_codes():
     airport_code_list = list(pd.read_html('https://en.wikipedia.org/wiki/List_of_airline_codes')[0]['ICAO'].dropna())
     return airport_code_list
 
 
-def clean (text, airport_code_list):
+def clean(text, airport_code_list):
 
     for air_code in airport_code_list: # remove airline codes
         text = text.replace(air_code, ' ')
-
 
     text = text.lower() # Lower Case
 
@@ -31,14 +29,9 @@ def clean (text, airport_code_list):
 
     text = ' '.join(expanded_words) # join words
 
-#     for punctuation in string.punctuation.replace('!','').replace('?',''):
-#         text = text.replace(punctuation, ' ') # Remove Punctuation
-
     unaccented_string = unidecode.unidecode(text) # remove accents
 
     tokenized = word_tokenize(unaccented_string) # Tokenize
-
-    # words_only = [word for word in tokenized if word.isalpha()] # Remove numbers
 
     stop_words = set(stopwords.words('english')) # Make stopword list
 
@@ -55,3 +48,23 @@ def clean (text, airport_code_list):
     lemmatized = " ".join(lemmatized)
 
     return lemmatized
+
+def balance_training_df(X_train, y_train):
+    # create training DF
+    train_df = pd.DataFrame(X_train)
+    train_df['airline_sentiment'] = y_train
+
+    # seperate negative and neutral tweets
+    negative_messages = train_df[train_df['airline_sentiment'] == 1]
+    neutral_messages  = train_df[train_df['airline_sentiment'] == 0]
+
+    # down sample tweets
+    negative_downsample = resample(negative_messages,
+                replace=True,
+                n_samples=len(neutral_messages),
+                random_state=42)
+
+    # combine resampled datasets
+    train_df = pd.concat([negative_downsample, neutral_messages])
+
+    return train_df
