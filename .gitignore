@@ -2,3 +2,6 @@ raw_data/
 .env
 clean_data/
 *__pycache__/
+predicted_data/
+tokenizer/
+models/

@@ -1,8 +1,15 @@
 from data_sources.local_disk import load_raw_data_local, save_clean_data_local
 from ml_logic.data import get_airline_codes, clean, balance_training_df
+from tensorflow.keras.preprocessing.sequence import pad_sequences
 import pandas as pd
 from sklearn.preprocessing import OrdinalEncoder
 from sklearn.model_selection import train_test_split
+import pickle
+from ml_logic.classificatio_model import evaluate_model
+from data_sources.local_disk import load_clean_tweets
+from ml_logic.classificatio_model import initialize_model, compile_model, train_model, embedding
+from tensorflow.keras import models
+
 
 def preprocess()-> pd.DataFrame:
     ''''clean data and save it'''
@@ -61,13 +68,76 @@ def preprocess()-> pd.DataFrame:
     return None
 
 def train():
-    pass
 
-def pred():
-    pass
+    # load dataset
+    df = load_clean_tweets(source = 'train')
 
-def evaluate():
-    pass
+    # set X & y
+    X = df['text']
+    y =  df [['airline_sentiment']]
+
+    # embed
+    X_pad, vocab_size = embedding(X)
+
+    # initialize model
+    model = initialize_model(vocab_size, embedding_dimension = 100)
+
+    #compile model
+    model = compile_model(model)
+
+    # fit model
+    model, history = train_model(
+            model,
+            X_pad,
+            y)
+
+    # save model
+    model.save('models/models.h5')
+
+    return None
+
+def pred(X_pred):
+
+    # load model
+    model = models.load_model('models/models.h5')
+
+    # load tokenizer
+    with open('tokenizer/tokenizer.pickle', 'rb') as handle:
+        tokenizer = pickle.load(handle)
+
+    X_test_token = tokenizer.texts_to_sequences(X_pred)
+
+    X_test_pad = pad_sequences(X_test_token, dtype='float32', padding='post')
+
+    y_pred = model.predict(X_test_pad)
+
+    y_pred_list = []
+    for i in y_pred:
+        if i[0] > 0.5:
+            i[0] = 1
+        else:
+            i[0] = 0
+        y_pred_list.append([i[0]])
+
+    df =
+
+    return None
+
+def evaluate(model,
+             X_test,
+             y_test):
+
+    # loading
+    with open('tokenizer/tokenizer.pickle', 'rb') as handle:
+        tokenizer = pickle.load(handle)
+
+    X_test_token = tokenizer.texts_to_sequences(X_test)
+
+    X_test_pad = pad_sequences(X_test_token, dtype='float32', padding='post')
+
+    metrics = evaluate_model(model, X_test_pad, y_test)
+
+    return metrics
 
 
 if __name__ == '__main__':

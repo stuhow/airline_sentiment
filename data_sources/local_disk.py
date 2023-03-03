@@ -11,4 +11,5 @@ def save_clean_data_local(df, target='train'):
     return None
 
 def load_clean_tweets(source = 'train'):
-    pass
+    df = pd.read_csv(f'clean_data/clean_tweets_{source}.csv')
+    return df
