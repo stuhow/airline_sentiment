@@ -73,7 +73,7 @@ def train():
     df = load_clean_tweets(source = 'train')
 
     # set X & y
-    X = df['text']
+    X = df['text'].astype("str")
     y =  df [['airline_sentiment']]
 
     # embed
@@ -119,13 +119,21 @@ def pred(X_pred):
             i[0] = 0
         y_pred_list.append([i[0]])
 
-    df =
+    df = None
 
     return None
 
-def evaluate(model,
-             X_test,
-             y_test):
+def evaluate():
+
+    # load data from clean data
+    df = load_clean_tweets(source = 'test')
+
+    # set variables
+    X_test = df['text'].astype("str")
+    y_test = df[['airline_sentiment']]
+
+    # load model
+    model = models.load_model('models/models.h5')
 
     # loading
     with open('tokenizer/tokenizer.pickle', 'rb') as handle:
@@ -141,7 +149,7 @@ def evaluate(model,
 
 
 if __name__ == '__main__':
-    preprocess()
+    # preprocess()
     # train()
     # pred()
     # evaluate()
