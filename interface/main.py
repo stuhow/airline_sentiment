@@ -96,7 +96,13 @@ def train():
 
     return None
 
-def pred(X_pred):
+def pred():
+
+    X_pred = input('Predict sentiment of: ')
+
+    airport_code_list = get_airline_codes()
+
+    X_pred = clean(X_pred, airport_code_list)
 
     # load model
     model = models.load_model('models/models.h5')
@@ -119,9 +125,11 @@ def pred(X_pred):
             i[0] = 0
         y_pred_list.append([i[0]])
 
-    df = None
-
-    return None
+    if y_pred[0] == 1:
+        print('Negative')
+    else:
+        print('Neutral or positive')
+    return y_pred
 
 def evaluate():
 
@@ -151,5 +159,5 @@ def evaluate():
 if __name__ == '__main__':
     # preprocess()
     # train()
-    # pred()
+    pred()
     # evaluate()
