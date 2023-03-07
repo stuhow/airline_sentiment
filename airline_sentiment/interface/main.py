@@ -1,14 +1,15 @@
-from data_sources.local_disk import load_raw_data_local, save_clean_data_local
-from ml_logic.data import get_airline_codes, clean, balance_training_df
+from airline_sentiment.data_sources.local_disk import load_raw_data_local, save_clean_data_local
+from airline_sentiment.ml_logic.data import get_airline_codes, clean, balance_training_df
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 import pandas as pd
 from sklearn.preprocessing import OrdinalEncoder
 from sklearn.model_selection import train_test_split
 import pickle
-from ml_logic.classificatio_model import evaluate_model
-from data_sources.local_disk import load_clean_tweets
-from ml_logic.classificatio_model import initialize_model, compile_model, train_model, embedding
+from airline_sentiment.ml_logic.classificatio_model import evaluate_model
+from airline_sentiment.data_sources.local_disk import load_clean_tweets
+from airline_sentiment.ml_logic.classificatio_model import initialize_model, compile_model, train_model, embedding
 from tensorflow.keras import models
+
 
 
 def preprocess()-> pd.DataFrame:
@@ -149,7 +150,7 @@ def evaluate():
 
 
 if __name__ == '__main__':
-    # preprocess()
-    # train()
-    pred()
-    # evaluate()
+    preprocess()
+    train()
+    # pred()
+    evaluate()

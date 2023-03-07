@@ -9,5 +9,5 @@ def root():
     # $CHA_END
 
 @app.get('/predict')
-def predict():
-    return {'wait': 64}
+def predict(text):
+    return text
