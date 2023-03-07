@@ -111,19 +111,11 @@ def pred():
     with open('tokenizer/tokenizer.pickle', 'rb') as handle:
         tokenizer = pickle.load(handle)
 
-    X_test_token = tokenizer.texts_to_sequences(X_pred)
+    X_test_token = tokenizer.texts_to_sequences([X_pred])
 
     X_test_pad = pad_sequences(X_test_token, dtype='float32', padding='post')
 
     y_pred = model.predict(X_test_pad)
-
-    y_pred_list = []
-    for i in y_pred:
-        if i[0] > 0.5:
-            i[0] = 1
-        else:
-            i[0] = 0
-        y_pred_list.append([i[0]])
 
     if y_pred[0] == 1:
         print('Negative')
