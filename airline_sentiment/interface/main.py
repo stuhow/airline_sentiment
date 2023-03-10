@@ -9,6 +9,7 @@ from airline_sentiment.ml_logic.classificatio_model import evaluate_model
 from airline_sentiment.data_sources.local_disk import load_clean_tweets
 from airline_sentiment.ml_logic.classificatio_model import initialize_model, compile_model, train_model, embedding
 from tensorflow.keras import models
+import os
 
 
 
@@ -27,7 +28,11 @@ def preprocess()-> pd.DataFrame:
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
     # get the list of airline codes
-    airport_code_list = get_airline_codes()
+    if os.environ['IATA_CODE_SOURCE'] == 'online':
+        airport_code_list = get_airline_codes()
+
+    if os.environ['IATA_CODE_SOURCE'] == 'local':
+        airport_code_list = list(pd.read_csv('data/raw_data/airline_codes.csv')['ICAO'].dropna())
 
     print(f"\n✅ Airline code retrieved")
 
@@ -136,7 +141,7 @@ def evaluate():
     # load model
     model = models.load_model('models/models.h5')
 
-    # loading
+    # loading tokenizer
     with open('tokenizer/tokenizer.pickle', 'rb') as handle:
         tokenizer = pickle.load(handle)
 
@@ -145,12 +150,12 @@ def evaluate():
     X_test_pad = pad_sequences(X_test_token, dtype='float32', padding='post')
 
     metrics = evaluate_model(model, X_test_pad, y_test)
-
-    return metrics
+    print(f'Model has an accuracy of: {metrics["accuracy"]}')
+    return None
 
 
 if __name__ == '__main__':
     preprocess()
     train()
-    # pred()
+    pred()
     evaluate()
