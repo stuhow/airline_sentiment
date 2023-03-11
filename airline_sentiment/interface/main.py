@@ -153,6 +153,9 @@ def evaluate():
     print(f'Model has an accuracy of: {metrics["accuracy"]}')
     return None
 
+def pred_df(df):
+
+
 
 if __name__ == '__main__':
     preprocess()

@@ -35,3 +35,15 @@ if st.button('click me'):
         st.write('Negative tweet')
     else:
         st.write('Neutral or positive tweet')
+
+
+@st.cache_data
+def get_bar_chart_data():
+    df = pd.read_csv('predicted_tweets.csv')
+    df['date'] = pd.to_datetime(df['date'])
+    df = df.groupby(df.date.dt.day)['pred'].mean()
+    return df
+
+chart_data = get_bar_chart_data()
+
+st.bar_chart(chart_data)

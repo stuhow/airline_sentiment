@@ -5,3 +5,5 @@ clean_data/
 predicted_data/
 tokenizer/
 models/
+*.ipynb
+.ipynb_checkpoints/
