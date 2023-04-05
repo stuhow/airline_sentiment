@@ -1,2 +1,2 @@
-fastapi
-uvicorn
+google-cloud-bigquery
+pandas
