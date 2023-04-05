@@ -1,9 +1,16 @@
 import streamlit as st
 import pandas as pd
+from google.oauth2 import service_account
 from google.cloud import bigquery
 
 project = st.secrets["PROJECT"]
 dataset = st.secrets["DATASET"]
+
+# Create API client.
+credentials = service_account.Credentials.from_service_account_info(
+    st.secrets["gcp_service_account"]
+)
+# client = bigquery.Client(credentials=credentials)
 
 st.set_page_config(
     page_title="Airline Dashboard",
@@ -26,7 +33,7 @@ def get_bar_chart_data(directory):
 @st.cache_data
 def get_bq_chart_data(airline_option1):
     ''' function to load data from bigquery'''
-    client = bigquery.Client()
+    client = bigquery.Client(credentials=credentials)
 
     sql = f"""
         SELECT date, pred, topic_customer_service, topic_flight
