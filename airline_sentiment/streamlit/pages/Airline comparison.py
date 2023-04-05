@@ -59,8 +59,6 @@ if st.button('click me', key=3):
 
     print('button clicked!')
 
-    '''To do - create a function to improve the below text'''
-
     with col1:
             # chart_data = get_bar_chart_data(directory)
 
@@ -88,7 +86,7 @@ if st.button('click me', key=3):
 
 
             chart_data = chart_data.set_index('date')
-            st.write(airline_option1)
+            st.write(f'Percentage of {airline_option1} tweets that are negative')
             st.bar_chart(chart_data)
 
     with col2:
@@ -118,5 +116,5 @@ if st.button('click me', key=3):
 
 
         chart_data = chart_data.set_index('date')
-        st.write(airline_option2)
+        st.write(f'Percentage of {airline_option2} tweets that are negative')
         st.bar_chart(chart_data)

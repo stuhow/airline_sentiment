@@ -71,7 +71,7 @@ if st.button('click me', key=3):
     chart_data_overall['date'] = chart_data_overall['date'].dt.strftime('%Y-%m-%d')
 
     chart_data_overall = chart_data_overall.set_index('date')
-    st.write(airline_option1)
+    st.write(f'Percentage of {airline_option1} tweets that are negative')
     st.bar_chart(chart_data_overall)
 
 
