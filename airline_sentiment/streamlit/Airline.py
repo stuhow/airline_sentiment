@@ -93,5 +93,5 @@ if st.button('click me', key=3):
 
         merged_df_final = merged_df_final.drop(columns=['pred'])
 
-        st.write(airline_option1)
+        st.write(f'Percentage of negative tweets related to {i}')
         st.bar_chart(merged_df_final)
