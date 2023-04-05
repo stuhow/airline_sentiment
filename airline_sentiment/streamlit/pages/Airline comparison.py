@@ -1,11 +1,15 @@
 import streamlit as st
 import pandas as pd
-import pickle
-from airline_sentiment.ml_logic.data import clean
-from tensorflow.keras import models
-from tensorflow.keras.preprocessing.sequence import pad_sequences
+from google.oauth2 import service_account
+from google.cloud import bigquery
 
+project = st.secrets["PROJECT"]
+dataset = st.secrets["DATASET"]
 
+# Create API client.
+credentials = service_account.Credentials.from_service_account_info(
+    st.secrets["gcp_service_account"]
+)
 
 
 st.set_page_config(
@@ -25,11 +29,25 @@ def get_bar_chart_data(directory):
     df['date'] = pd.to_datetime(df['date'])
     return df
 
+@st.cache_data
+def get_bq_chart_data(airline_option1):
+    ''' function to load data from bigquery'''
+    client = bigquery.Client(credentials=credentials)
+
+    sql = f"""
+        SELECT date, pred, topic_customer_service, topic_flight
+        FROM `{project}.{dataset}.{airline_option1}_predictions`
+    """
+
+    df = client.query(sql).to_dataframe()
+
+    return df
+
 airline_option1 = st.selectbox('### Select an airline', ['AmericanAir', 'united', 'JetBlue'], key=1)
 
 directory = f'data/predicted_data/{airline_option1}/{airline_option1}_predictions.csv'
 
-airline_option2 = st.selectbox('### Select an airline', ['united', 'USAirways', 'SouthwestAir', 'JetBlue', 'AmericanAir'], key=2)
+airline_option2 = st.selectbox('### Select an airline', ['united', 'AmericanAir', 'JetBlue'], key=2)
 
 directory2 = f'data/predicted_data/{airline_option2}/{airline_option2}_predictions.csv'
 
@@ -42,7 +60,11 @@ if st.button('click me', key=3):
     print('button clicked!')
 
     with col1:
-            chart_data = get_bar_chart_data(directory)
+            # chart_data = get_bar_chart_data(directory)
+
+            chart_data = get_bq_chart_data(airline_option1)
+
+            chart_data['date'] = pd.to_datetime(chart_data['date'])
 
             chart_data = chart_data.set_index('date')
 
@@ -68,7 +90,11 @@ if st.button('click me', key=3):
             st.bar_chart(chart_data)
 
     with col2:
-        chart_data = get_bar_chart_data(directory2)
+        # chart_data = get_bar_chart_data(directory2)
+
+        chart_data = get_bq_chart_data(airline_option2)
+
+        chart_data['date'] = pd.to_datetime(chart_data['date'])
 
         chart_data = chart_data.set_index('date')
 
