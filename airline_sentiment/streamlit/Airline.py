@@ -1,12 +1,9 @@
 import streamlit as st
 import pandas as pd
-import pickle
-from airline_sentiment.ml_logic.data import clean
-from tensorflow.keras import models
-from tensorflow.keras.preprocessing.sequence import pad_sequences
+from google.cloud import bigquery
 
-
-
+project = st.secrets["PROJECT"]
+dataset = st.secrets["DATASET"]
 
 st.set_page_config(
     page_title="Airline Dashboard",
@@ -20,12 +17,28 @@ option = st.selectbox('### Select a date band', ['Day', 'Week', 'Month', 'Year']
 
 @st.cache_data
 def get_bar_chart_data(directory):
+    ''' function to load data locally'''
     df = pd.read_csv(directory,
                     lineterminator='\n')
     df['date'] = pd.to_datetime(df['date'])
     return df
 
-airline_option1 = st.selectbox('### Select an airline', ['SouthwestAir', 'AmericanAir', 'united', 'JetBlue'], key=1)
+@st.cache_data
+def get_bq_chart_data(airline_option1):
+    ''' function to load data from bigquery'''
+    client = bigquery.Client()
+
+    sql = f"""
+        SELECT date, pred, topic_customer_service, topic_flight
+        FROM `{project}.{dataset}.{airline_option1}_predictions`
+    """
+
+    df = client.query(sql).to_dataframe()
+
+    return df
+
+
+airline_option1 = st.selectbox('### Select an airline', ['united', 'AmericanAir', 'JetBlue'], key=1)
 
 directory = f'data/predicted_data/{airline_option1}/{airline_option1}_predictions.csv'
 
@@ -39,7 +52,10 @@ if st.button('click me', key=3):
 
     # load dataframe
 
-    chart_data = get_bar_chart_data(directory)
+    # chart_data = get_bar_chart_data(directory)
+    chart_data = get_bq_chart_data(airline_option1)
+
+    chart_data['date'] = pd.to_datetime(chart_data['date'])
 
     chart_data = chart_data.set_index('date')
 
@@ -59,7 +75,7 @@ if st.button('click me', key=3):
 
     chart_data_prob = pd.DataFrame(chart_data_prob.groupby(pd.Grouper(freq=date_band_dict[option]))['pred'].mean())
 
-    for i in ['topic_customer service','topic_flight']:
+    for i in ['topic_customer_service','topic_flight']:
 
         chart_data_topic_option = chart_data_topic[chart_data_topic['pred'] == 1]
         chart_data_topic_option = pd.DataFrame(chart_data_topic_option.groupby(pd.Grouper(freq=date_band_dict[option]))[i].mean())

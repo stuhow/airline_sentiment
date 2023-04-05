@@ -25,7 +25,7 @@ def get_bar_chart_data(directory):
     df['date'] = pd.to_datetime(df['date'])
     return df
 
-airline_option1 = st.selectbox('### Select an airline', ['AmericanAir', 'united', 'USAirways', 'SouthwestAir', 'JetBlue'], key=1)
+airline_option1 = st.selectbox('### Select an airline', ['AmericanAir', 'united', 'JetBlue'], key=1)
 
 directory = f'data/predicted_data/{airline_option1}/{airline_option1}_predictions.csv'
 

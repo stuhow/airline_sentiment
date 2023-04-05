@@ -7,3 +7,4 @@ tokenizer/
 models/
 *.ipynb
 .ipynb_checkpoints/
+.streamlit/secrets.toml

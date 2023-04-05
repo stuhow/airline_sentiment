@@ -52,6 +52,12 @@ app = FastAPI()
 
 app.state.model = models.load_model('/home/stuart/code/stuhow/airline_sentiment/models/models.h5')
 
+# load tokenizer
+with open('/home/stuart/code/stuhow/airline_sentiment/tokenizer/tokenizer.pickle', 'rb') as handle:
+    tokenizer = pickle.load(handle)
+
+airport_code_list = list(pd.read_csv('/home/stuart/code/stuhow/airline_sentiment/data/raw_data/airline_codes.csv')['ICAO'].dropna())
+
 @app.get("/")
 def root():
     # $CHA_BEGIN
@@ -61,13 +67,7 @@ def root():
 @app.get('/predict')
 def predict(text):
 
-    airport_code_list = list(pd.read_csv('/home/stuart/code/stuhow/airline_sentiment/data/raw_data/airline_codes.csv')['ICAO'].dropna())
-
     X_pred = clean(text, airport_code_list)
-
-    # load tokenizer
-    with open('/home/stuart/code/stuhow/airline_sentiment/tokenizer/tokenizer.pickle', 'rb') as handle:
-        tokenizer = pickle.load(handle)
 
     X_test_token = tokenizer.texts_to_sequences([X_pred])
 
