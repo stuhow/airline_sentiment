@@ -1,3 +1,6 @@
 google-cloud-bigquery==2.34.3
 pandas
 google-auth
+tensorflow
+unidecode
+contractions
