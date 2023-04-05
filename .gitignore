@@ -6,4 +6,3 @@ predicted_data/
 *.ipynb
 .ipynb_checkpoints/
 .streamlit/secrets.toml
-.csv
