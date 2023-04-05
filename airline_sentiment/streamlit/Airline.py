@@ -18,9 +18,11 @@ st.set_page_config(
 )
 
 st.write("# Welcome to my airline dashboard")
+st.write("### See how an airlines twitter sentiment changes over time and the reasons behind the change")
+st.write("#### Select a time frame and a airline from the below drop downs and then click me!")
 
 
-option = st.selectbox('### Select a date band', ['Day', 'Week', 'Month', 'Year'])
+option = st.selectbox('Select a time frame', ['Day', 'Week', 'Month', 'Year'])
 
 @st.cache_data
 def get_bar_chart_data(directory):
@@ -31,13 +33,13 @@ def get_bar_chart_data(directory):
     return df
 
 @st.cache_data
-def get_bq_chart_data(airline_option1):
+def get_bq_chart_data(airline_option):
     ''' function to load data from bigquery'''
     client = bigquery.Client(credentials=credentials)
 
     sql = f"""
         SELECT date, pred, topic_customer_service, topic_flight
-        FROM `{project}.{dataset}.{airline_option1}_predictions`
+        FROM `{project}.{dataset}.{airline_option}_predictions`
     """
 
     df = client.query(sql).to_dataframe()
@@ -45,9 +47,13 @@ def get_bq_chart_data(airline_option1):
     return df
 
 
-airline_option1 = st.selectbox('### Select an airline', ['united', 'AmericanAir', 'JetBlue'], key=1)
+airline = st.selectbox('Select an airline', ['United Airlines', 'American Airlines'], key=1)
 
-directory = f'data/predicted_data/{airline_option1}/{airline_option1}_predictions.csv'
+airline_dict = {'United Airlines': 'united', 'American Airlines': 'AmericanAir'}
+
+# airline_option1 = airline_dict[airline]
+
+# directory = f'data/predicted_data/{airline_option1}/{airline_option1}_predictions.csv'
 
 date_band_dict = {'Day': 'D', 'Week': 'W', 'Month': 'M', 'Year': 'Y'}
 
@@ -58,7 +64,7 @@ if st.button('click me', key=3):
     print('button clicked!')
 
     # load dataframe
-
+    airline_option1 = airline_dict[airline]
     # chart_data = get_bar_chart_data(directory)
     chart_data = get_bq_chart_data(airline_option1)
 
@@ -71,27 +77,31 @@ if st.button('click me', key=3):
     chart_data_overall['date'] = chart_data_overall['date'].dt.strftime('%Y-%m-%d')
 
     chart_data_overall = chart_data_overall.set_index('date')
-    st.write(f'Percentage of {airline_option1} tweets that are negative')
+
+    chart_data_overall['pred'] = chart_data_overall['pred'] * 100
+
+    chart_data_overall = chart_data_overall.rename({'pred': 'Negative tweets'}, axis=1)
+
+    st.write(f'Percentage of {airline} tweets that are negative')
     st.bar_chart(chart_data_overall)
 
 
     # show % of neg tweets by Customer service issue or flight issue
 
-    chart_data_prob = chart_data.copy()
-    chart_data_topic = chart_data.copy()
-
-    chart_data_prob = pd.DataFrame(chart_data_prob.groupby(pd.Grouper(freq=date_band_dict[option]))['pred'].mean())
+    chart_data_prob = pd.DataFrame(chart_data.groupby(pd.Grouper(freq=date_band_dict[option]))['pred'].mean())
 
     for i in ['topic_customer_service','topic_flight']:
 
-        chart_data_topic_option = chart_data_topic[chart_data_topic['pred'] == 1]
+        chart_data_topic_option = chart_data[chart_data['pred'] == 1]
         chart_data_topic_option = pd.DataFrame(chart_data_topic_option.groupby(pd.Grouper(freq=date_band_dict[option]))[i].mean())
 
         merged_df = chart_data_prob.join(chart_data_topic_option)
 
-        merged_df_final = merged_df.copy()
+        merged_df_final = merged_df.drop(columns=['pred'])
 
-        merged_df_final = merged_df_final.drop(columns=['pred'])
+        merged_df_final[i] = merged_df_final[i] * 100
 
-        st.write(f'Percentage of negative tweets related to {i}')
+        merged_df_final = merged_df_final.rename({i: f'{i[6:].replace("_", " ")}'}, axis=1)
+
+        st.write(f'Percentage of negative tweets related to the {i[6:].replace("_", " ")}')
         st.bar_chart(merged_df_final)
