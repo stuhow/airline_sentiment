@@ -50,13 +50,13 @@ def clean(text, airport_code_list):
 
 app = FastAPI()
 
-app.state.model = models.load_model('/home/stuart/code/stuhow/airline_sentiment/models/models.h5')
+app.state.model = models.load_model('models/models.h5')
 
 # load tokenizer
-with open('/home/stuart/code/stuhow/airline_sentiment/tokenizer/tokenizer.pickle', 'rb') as handle:
+with open('tokenizer/tokenizer.pickle', 'rb') as handle:
     tokenizer = pickle.load(handle)
 
-airport_code_list = list(pd.read_csv('/home/stuart/code/stuhow/airline_sentiment/data/raw_data/airline_codes.csv')['ICAO'].dropna())
+airport_code_list = list(pd.read_csv('data/raw_data/airline_codes.csv')['ICAO'].dropna())
 
 @app.get("/")
 def root():
@@ -78,10 +78,8 @@ def predict(text):
     pred = None
 
     if y_pred[0] > 0.5:
-        print('Negative tweet')
         pred = 'Negative tweet'
     else:
-        print('Neutral or positive tweet')
         pred = 'Neutral or positive tweet'
 
     return {'prediction': pred}

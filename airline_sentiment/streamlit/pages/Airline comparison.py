@@ -59,6 +59,8 @@ if st.button('click me', key=3):
 
     print('button clicked!')
 
+    '''To do - create a function to improve the below text'''
+
     with col1:
             # chart_data = get_bar_chart_data(directory)
 
