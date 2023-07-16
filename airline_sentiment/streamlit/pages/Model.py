@@ -1,8 +1,8 @@
 import streamlit as st
 import requests
 
-st.write("## Test out the models predictions")
-st.write("### Enter a tweet below and click on make prediction!")
+st.write("## Test out the model predictions with its API")
+st.write("### Enter a tweet below and click on Make prediction!")
 
 with st.form(key='params_for_api'):
     example_text = st.text_input("Enter some text 👇", "the worst flight i've ever taken")
